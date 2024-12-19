@@ -8,7 +8,7 @@
     <!-- Firebase SDK (Modular version) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-      import { getFirestore, doc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+      import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
       // Firebase configuration
       const firebaseConfig = {
@@ -37,20 +37,20 @@
           console.log(`Successfully added ${score} points for ${username}`);
 
           Toastify({
-            text: `${score} NES won! 🎉`,
-            duration: 1000,
-            position: "center",
-            backgroundColor: "white",
-            close: false,
-            stopOnFocus: false,
-            style: {
-              position: "absolute",
-              borderRadius: "23px",
-              color: "black",
-              scale: "0.7",
-              paddingBottom: "15px",
-            },
-          }).showToast();
+                text: `${score} NES won! 🎉`,
+                duration: 1000,
+    position: "center",
+    backgroundColor: "white",
+    close: false,
+    stopOnFocus: false,
+    style: {
+        position: "absolute",
+        borderRadius: "23px",
+        color: "black",
+        scale: "0.7",
+        paddingBottom: "15px",
+    },
+}).showToast();
         } catch (error) {
           console.error("Error updating Firestore:", error, "For username:", username);
           Toastify({
@@ -61,8 +61,8 @@
             style: {
               background: "red",
               borderRadius: "10px",
-              color: "white",
-            },
+              color: "white"
+            }
           }).showToast();
         }
       }
@@ -79,24 +79,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-
-    <!-- Token Counter -->
-    <p id="pxl-counter" style="
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      z-index: 1000;">
-      Loading...
-    </p>
-
-    <!-- Unity Canvas -->
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
 
@@ -116,29 +98,16 @@
       }
 
       // Function to get Telegram username
-      window.getTelegramUsername = function () {
+      window.getTelegramUsername = function() {
         return username;
       };
 
-      // Function to fetch and display real-time token balance
-      function updateTokenBalance(username) {
-        const pxlCounter = document.getElementById("pxl-counter");
-        const userDocRef = doc(db, "users", username);
-
-        onSnapshot(userDocRef, (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const data = docSnapshot.data();
-            const pxlValue = data.token_balance || 0;
-            pxlCounter.textContent = `Tokens: ${pxlValue}`;
-          } else {
-            console.warn("No document found for username:", username);
-            pxlCounter.textContent = "Tokens: 0";
-          }
-        });
-      }
-
-      // Call the function to fetch token balance
-      updateTokenBalance(username);
+      // Function to receive score from Unity
+      window.SendScoreToFirestore = function(score) {
+        const currentUsername = window.getTelegramUsername();
+        console.log("Received score from Unity:", score, "for user:", currentUsername);
+        window.updateScoreInFirestore(score, currentUsername);
+      };
 
       // Unity WebGL Initialization
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -163,7 +132,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "NESTOR LAB",
         productName: "NES Adventure",
-        productVersion: "1.0",
+        productVersion: "1.0"
       }).then((unityInstance) => {
         console.log("Unity WebGL instance loaded!");
         window.unityInstance = unityInstance;
