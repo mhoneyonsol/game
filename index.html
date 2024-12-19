@@ -26,31 +26,46 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Firestore update function
-      async function updateScoreInFirestore(score, username) {
-        try {
-          const userRef = doc(db, "users", username);
-          await updateDoc(userRef, {
-            token_balance: increment(score)
-          });
-          console.log(`${score} points added for ${username}`);
+      let previousScore = 0; // Tracks the last score sent to Firestore
 
-          // Toastify notification
-          Toastify({
-            text: `${score} NES points added! 🎉`,
-            duration: 3000,
-            gravity: "top",
-            position: "center",
-            style: {
-              background: "green",
-              borderRadius: "10px",
-              color: "white"
-            }
-          }).showToast();
-        } catch (error) {
-          console.error("Error updating Firestore:", error);
-        }
-      }
+async function updateScoreInFirestore(currentScore, username) {
+  try {
+    const scoreDelta = currentScore - previousScore; // Calculate the difference
+    if (scoreDelta > 0) {
+      const userRef = doc(db, "users", username);
+      await updateDoc(userRef, {
+        token_balance: increment(scoreDelta) // Increment by the delta
+      });
+      console.log(`Token balance incremented by ${scoreDelta} for ${username}`);
+      previousScore = currentScore; // Update the previous score
+    } else {
+      console.log("No score increment needed.");
+    }
+
+    // Toastify notification
+    Toastify({
+                text: `${score} NES won! 🎉`,
+                duration: 3000,
+    position: "center",
+    backgroundColor: "white",
+    close: false,
+    stopOnFocus: false,
+    offset: {
+    y: '50px' // vertical axis - can be a number or a string indicating unity. eg: '2em'
+  },
+    style: {
+        position: "absolute",
+        borderRadius: "23px",
+        color: "black",
+        scale: "0.7",
+        paddingBottom: "15px",
+    },
+}).showToast();
+  } catch (error) {
+    console.error("Error updating Firestore:", error);
+  }
+}
+
 
       // Function called by Unity
       window.SendScoreToFirestore = function (score, username) {
