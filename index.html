@@ -165,23 +165,37 @@
     <!-- Global JavaScript functions -->
     <script>
       // Initialize username globally
-      let username = "Guest";
+let username = "Guest";
 
-      // Telegram WebApp Integration
-      try {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        username = tg.initDataUnsafe?.user?.username || "Guest";
-        console.log(`Telegram username: ${username}`);
-      } catch (error) {
-        console.warn("Telegram WebApp is not available:", error);
-      }
+// Telegram WebApp Integration
+try {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    
+    // Check if Telegram WebApp provides user data
+    const userData = tg.initDataUnsafe?.user;
 
-      // Function to get Telegram username
-      window.getTelegramUsername = function() {
-        return username;
-      };
+    if (userData) {
+        // Check if the user has a username
+        if (userData.username) {
+            username = userData.username;
+        } else if (userData.first_name && userData.last_name) {
+            username = `${userData.first_name}_${userData.last_name}`;
+        } else if (userData.first_name) {
+            username = userData.first_name;
+        } else {
+            username = "Unknown_User";
+        }
+    }
+    console.log(`Telegram username resolved: ${username}`);
+} catch (error) {
+    console.warn("Telegram WebApp is not available:", error);
+}
 
+// Function to get Telegram username
+window.getTelegramUsername = function() {
+    return username;
+};
       // Function to receive score from Unity
       window.SendScoreToFirestore = function(score) {
         const currentUsername = window.getTelegramUsername();
