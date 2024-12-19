@@ -90,10 +90,31 @@
         });
       }
 
-      updateTokenBalance(username);
+     
       // Make updateScoreInFirestore available globally
       window.updateScoreInFirestore = updateScoreInFirestore;
+
+
     </script>
+
+    <script>
+  // Afficher le pxl-counter après 10 secondes au chargement de l'application
+  window.onload = function () {
+    const pxlCounter = document.getElementById("pxl-counter");
+    pxlCounter.style.visibility = "hidden"; // Masquer initialement
+    pxlCounter.style.opacity = "0"; // Assurer qu'il est invisible
+
+    // Attendre 10 secondes avant de l'afficher
+    setTimeout(() => {
+      pxlCounter.style.visibility = "visible"; // Le rendre visible
+      pxlCounter.style.opacity = "1"; // Activer l'effet d'apparition
+    }, 10000); // 10000 ms = 10 secondes
+  };
+
+  // Mettre à jour le solde des tokens en temps réel
+  updateTokenBalance(username);
+</script>
+
 
     <!-- Toastify Library -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -119,7 +140,16 @@
     font-family: monospace;
     display: flex;
     backdrop-filter: blur(2px);
-}</style>
+    visibility: hidden; 
+    opacity: 0; 
+    transition: opacity 0.5s ease-in-out;
+}
+
+.toastify {
+    box-shadow: none !important;
+}
+
+</style>
 
 
 
