@@ -129,15 +129,12 @@ function updateTokenBalance(username) {
     // Initially hide both elements
     pxlCounter.style.visibility = "hidden";
     pxlCounter.style.opacity = "0";
-    usernameDisplay.style.visibility = "hidden";
-    usernameDisplay.style.opacity = "0";
+    
 
     // Wait 10 seconds before showing both elements
     setTimeout(() => {
         pxlCounter.style.visibility = "visible"; // Make pxl-counter visible
         pxlCounter.style.opacity = "1"; // Trigger fade-in effect
-        usernameDisplay.style.visibility = "visible"; // Make username-display visible
-        usernameDisplay.style.opacity = "1"; // Trigger fade-in effect
     }, 10000); // 10 seconds
 };
 
@@ -195,9 +192,6 @@ function updateTokenBalance(username) {
     border-radius: 10px;
     z-index: 1000;
     backdrop-filter: blur(2px);
-    visibility: hidden; 
-    opacity: 0; 
-    transition: opacity 0.5s ease-in-out;
 }
 
 .toastify {
