@@ -78,7 +78,7 @@
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             const pxlValue = data.token_balance || 0;
-            pxlCounter.textContent = `Tokens: ${pxlValue}`;
+            pxlCounter.textContent = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="scale: 1; width: 33px;">`;
           } else {
             console.warn("No document found for username:", username);
             pxlCounter.textContent = "Tokens: 0";
@@ -102,7 +102,7 @@
 
 <p id="pxl-counter" style="
       position: absolute;
-      top: 50px;
+      top: 20px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(0, 0, 0, 0.7);
