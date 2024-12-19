@@ -37,12 +37,15 @@
           console.log(`Successfully added ${score} points for ${username}`);
 
           Toastify({
-                text: `${score} NES won! 🎉`,
+                text: `+${score} NES🎉`,
                 duration: 1000,
     position: "center",
     backgroundColor: "white",
     close: false,
     stopOnFocus: false,
+    offset: {
+    y: '30px' // vertical axis - can be a number or a string indicating unity. eg: '2em'
+  },
     style: {
         position: "absolute",
         borderRadius: "23px",
@@ -78,7 +81,7 @@
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             const pxlValue = data.token_balance || 0;
-            pxlCounter.innerHTML = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="width: 33px;">`;
+            pxlCounter.innerHTML = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="width: 33px;margin-left: 5px;">`;
 
           } else {
             console.warn("No document found for username:", username);
@@ -100,19 +103,28 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
+    
+    <style>
+      #pxl-counter {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(255 255 255 / 18%);
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 1000;
+    font-family: monospace;
+    display: flex;
+    backdrop-filter: blur(10px);
+}</style>
 
-<p id="pxl-counter" style="
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      z-index: 1000;">
+
+
+
+<p id="pxl-counter">
       Loading...
     </p>
 
