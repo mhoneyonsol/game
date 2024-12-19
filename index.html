@@ -99,11 +99,21 @@
       };
 
       // Function to receive score from Unity
-      window.SendScoreToFirestore = function(score) {
-        const currentUsername = window.getTelegramUsername();
-        console.log("Received score from Unity:", score, "for user:", currentUsername);
-        window.updateScoreInFirestore(score, currentUsername);
-      };
+      let previousScore = 0; // Track the last score sent to Firestore
+
+window.SendScoreToFirestore = function (currentScore) {
+  const currentUsername = window.getTelegramUsername();
+  const scoreDelta = currentScore - previousScore; // Calculate the difference
+
+  if (scoreDelta > 0) {
+    console.log("Sending score increment:", scoreDelta, "for user:", currentUsername);
+    window.updateScoreInFirestore(scoreDelta, currentUsername);
+    previousScore = currentScore; // Update the previous score after successful increment
+  } else {
+    console.warn("No score increment detected. Skipping update.");
+  }
+};
+
 
       // Unity WebGL Initialization
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
