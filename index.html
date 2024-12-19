@@ -8,7 +8,7 @@
     <!-- Firebase SDK (Modular version) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-      import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+      import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
       // Firebase configuration
       const firebaseConfig = {
@@ -67,6 +67,26 @@
         }
       }
 
+
+
+// Function to fetch and display real-time token balance
+      function updateTokenBalance(username) {
+        const pxlCounter = document.getElementById("pxl-counter");
+        const userDocRef = doc(db, "users", username);
+
+        onSnapshot(userDocRef, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            const pxlValue = data.token_balance || 0;
+            pxlCounter.textContent = `Tokens: ${pxlValue}`;
+          } else {
+            console.warn("No document found for username:", username);
+            pxlCounter.textContent = "Tokens: 0";
+          }
+        });
+      }
+
+      updateTokenBalance(username);
       // Make updateScoreInFirestore available globally
       window.updateScoreInFirestore = updateScoreInFirestore;
     </script>
@@ -79,6 +99,23 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
+
+<p id="pxl-counter" style="
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 1000;">
+      Loading...
+    </p>
+
+
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
 
