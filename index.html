@@ -37,14 +37,14 @@
           console.log(`Successfully added ${score} points for ${username}`);
 
           Toastify({
-                text: `+${score} NES🎉`,
+                text: `+${score}`,
                 duration: 1000,
     position: "center",
     backgroundColor: "white",
     close: false,
     stopOnFocus: false,
     offset: {
-    y: '30px' // vertical axis - can be a number or a string indicating unity. eg: '2em'
+    y: '40px' // vertical axis - can be a number or a string indicating unity. eg: '2em'
   },
     style: {
         position: "absolute",
@@ -118,7 +118,7 @@
     z-index: 1000;
     font-family: monospace;
     display: flex;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(2px);
 }</style>
 
 
