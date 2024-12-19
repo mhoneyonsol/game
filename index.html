@@ -37,16 +37,23 @@
           console.log(`Successfully added ${score} points for ${username}`);
 
           Toastify({
-            text: `${score} NES points added! 🎉`,
-            duration: 3000,
-            gravity: "top",
-            position: "center",
-            style: {
-              background: "green",
-              borderRadius: "10px",
-              color: "white"
-            }
-          }).showToast();
+                text: `${score} NES won! 🎉`,
+                duration: 3000,
+    position: "center",
+    backgroundColor: "white",
+    close: false,
+    stopOnFocus: false,
+    offset: {
+    y: '50px' // vertical axis - can be a number or a string indicating unity. eg: '2em'
+  },
+    style: {
+        position: "absolute",
+        borderRadius: "23px",
+        color: "black",
+        scale: "0.7",
+        paddingBottom: "15px",
+    },
+}).showToast();
         } catch (error) {
           console.error("Error updating Firestore:", error, "For username:", username);
           Toastify({
