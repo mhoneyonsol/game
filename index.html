@@ -3,18 +3,81 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | NES Adeventure</title>
+    <title>Unity Web Player | NES Adventure</title>
+
+    <!-- Firebase SDK (Modular version) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+      import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAPqPvrJMC1Kd7M3aWIJKRZPBnQKwAIc_g",
+        authDomain: "pixel-a188a.firebaseapp.com",
+        databaseURL: "https://pixel-a188a-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "pixel-a188a",
+        storageBucket: "pixel-a188a.firebasestorage.app",
+        messagingSenderId: "1051565452085",
+        appId: "1:1051565452085:web:38846df63666fd719f3a7c",
+        measurementId: "G-85E5L1G133"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Initialize Telegram WebApp
+      const tg = window.Telegram?.WebApp;
+      tg?.ready();
+      const username = tg?.initDataUnsafe?.user?.username || "Guest";
+
+      // Function to update Firestore
+      async function updateScoreInFirestore(score) {
+        try {
+          const userRef = doc(db, "users", username);
+          await updateDoc(userRef, {
+            token_balance: increment(score)
+          });
+          console.log(`${score} points added for ${username}`);
+
+          // Toastify notification
+          Toastify({
+            text: `${score} NES points added! 🎉`,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: {
+              background: "green",
+              borderRadius: "10px",
+              color: "white"
+            }
+          }).showToast();
+        } catch (error) {
+          console.error("Error updating Firestore:", error);
+        }
+      }
+
+      // Function called by Unity
+      window.SendScoreToFirestore = function (score) {
+        console.log("Received score from Unity:", score);
+        updateScoreInFirestore(score);
+      };
+    </script>
+
+    <!-- Toastify Library -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+        // Mobile-friendly styles
+        var meta = document.createElement("meta");
+        meta.name = "viewport";
+        meta.content = "width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes";
+        document.getElementsByTagName("head")[0].appendChild(meta);
 
         var canvas = document.querySelector("#unity-canvas");
         canvas.style.width = "100%";
@@ -31,10 +94,10 @@
         codeUrl: "Build/game.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "NESTOR LAB",
-        productName: "NES Adeventure",
-        productVersion: "1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+        productName: "NES Adventure",
+        productVersion: "1.0"
+      }).then((unityInstance) => {
+        console.log("Unity WebGL instance loaded!");
       });
     </script>
   </body>
