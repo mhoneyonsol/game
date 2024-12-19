@@ -26,13 +26,8 @@
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
-      // Initialize Telegram WebApp
-      const tg = window.Telegram?.WebApp;
-      tg?.ready();
-      const username = tg?.initDataUnsafe?.user?.username || "Guest";
-
-      // Function to update Firestore
-      async function updateScoreInFirestore(score) {
+      // Firestore update function
+      async function updateScoreInFirestore(score, username) {
         try {
           const userRef = doc(db, "users", username);
           await updateDoc(userRef, {
@@ -58,21 +53,43 @@
       }
 
       // Function called by Unity
-      window.SendScoreToFirestore = function (score) {
+      window.SendScoreToFirestore = function (score, username) {
         console.log("Received score from Unity:", score);
-        updateScoreInFirestore(score);
+        updateScoreInFirestore(score, username);
       };
     </script>
 
     <!-- Toastify Library -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-     <!-- Telegram WebApp SDK -->
+
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-      </head>
+  </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
+
+    <!-- Telegram WebApp Integration -->
+    <script>
+      let username = "Guest"; // Default username in case Telegram is unavailable
+
+      try {
+        const tg = window.Telegram.WebApp; // Access Telegram WebApp
+        tg.ready(); // Initialize Telegram WebApp
+        username = tg.initDataUnsafe?.user?.username || "Guest"; // Get Telegram username
+        console.log(`Telegram username: ${username}`);
+      } catch (error) {
+        console.warn("Telegram WebApp is not available:", error);
+      }
+
+      // Export username to be used in other parts of the app
+      window.getTelegramUsername = function () {
+        return username;
+      };
+    </script>
+
+    <!-- Unity WebGL Initialization -->
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile-friendly styles
