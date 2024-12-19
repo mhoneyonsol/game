@@ -11,16 +11,16 @@
       import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
       // Firebase configuration
-       const firebaseConfig = {
-    apiKey: "AIzaSyAPqPvrJMC1Kd7M3aWIJKRZPBnQKwAIc_g",
-    authDomain: "pixel-a188a.firebaseapp.com",
-    databaseURL: "https://pixel-a188a-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "pixel-a188a",
-    storageBucket: "pixel-a188a.firebasestorage.app",
-    messagingSenderId: "1051565452085",
-    appId: "1:1051565452085:web:2cf04f5f94a913a39f3a7c",
-    measurementId: "G-F1QT6Z8PTY"
-  };
+      const firebaseConfig = {
+        apiKey: "AIzaSyAPqPvrJMC1Kd7M3aWIJKRZPBnQKwAIc_g",
+        authDomain: "pixel-a188a.firebaseapp.com",
+        databaseURL: "https://pixel-a188a-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "pixel-a188a",
+        storageBucket: "pixel-a188a.firebasestorage.app",
+        messagingSenderId: "1051565452085",
+        appId: "1:1051565452085:web:2cf04f5f94a913a39f3a7c",
+        measurementId: "G-F1QT6Z8PTY"
+      };
 
       // Initialize Firebase
       const app = initializeApp(firebaseConfig);
@@ -28,14 +28,14 @@
 
       // Firestore update function
       async function updateScoreInFirestore(score, username) {
+        console.log("Attempting to update score for:", username);
         try {
           const userRef = doc(db, "users", username);
           await updateDoc(userRef, {
             token_balance: increment(score)
           });
-          console.log(`${score} points added for ${username}`);
+          console.log(`Successfully added ${score} points for ${username}`);
 
-          // Toastify notification
           Toastify({
             text: `${score} NES points added! 🎉`,
             duration: 3000,
@@ -48,15 +48,23 @@
             }
           }).showToast();
         } catch (error) {
-          console.error("Error updating Firestore:", error);
+          console.error("Error updating Firestore:", error, "For username:", username);
+          Toastify({
+            text: `Error saving score: ${error.message}`,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: {
+              background: "red",
+              borderRadius: "10px",
+              color: "white"
+            }
+          }).showToast();
         }
       }
 
-      // Function called by Unity
-      window.SendScoreToFirestore = function (score, username) {
-        console.log("Received score from Unity:", score);
-        updateScoreInFirestore(score, username);
-      };
+      // Make updateScoreInFirestore available globally
+      window.updateScoreInFirestore = updateScoreInFirestore;
     </script>
 
     <!-- Toastify Library -->
@@ -70,27 +78,34 @@
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
 
-    <!-- Telegram WebApp Integration -->
+    <!-- Global JavaScript functions -->
     <script>
-      let username = "Guest"; // Default username in case Telegram is unavailable
+      // Initialize username globally
+      let username = "Guest";
 
+      // Telegram WebApp Integration
       try {
-        const tg = window.Telegram.WebApp; // Access Telegram WebApp
-        tg.ready(); // Initialize Telegram WebApp
-        username = tg.initDataUnsafe?.user?.username || "Guest"; // Get Telegram username
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        username = tg.initDataUnsafe?.user?.username || "Guest";
         console.log(`Telegram username: ${username}`);
       } catch (error) {
         console.warn("Telegram WebApp is not available:", error);
       }
 
-      // Export username to be used in other parts of the app
-      window.getTelegramUsername = function () {
+      // Function to get Telegram username
+      window.getTelegramUsername = function() {
         return username;
       };
-    </script>
 
-    <!-- Unity WebGL Initialization -->
-    <script>
+      // Function to receive score from Unity
+      window.SendScoreToFirestore = function(score) {
+        const currentUsername = window.getTelegramUsername();
+        console.log("Received score from Unity:", score, "for user:", currentUsername);
+        window.updateScoreInFirestore(score, currentUsername);
+      };
+
+      // Unity WebGL Initialization
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile-friendly styles
         var meta = document.createElement("meta");
@@ -107,7 +122,6 @@
       }
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        arguments: [],
         dataUrl: "Build/game.data",
         frameworkUrl: "Build/game.framework.js",
         codeUrl: "Build/game.wasm",
@@ -117,6 +131,7 @@
         productVersion: "1.0"
       }).then((unityInstance) => {
         console.log("Unity WebGL instance loaded!");
+        window.unityInstance = unityInstance;
       });
     </script>
   </body>
