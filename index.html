@@ -73,22 +73,43 @@
 
 
 // Function to fetch and display real-time token balance
-      function updateTokenBalance(username) {
-        const pxlCounter = document.getElementById("pxl-counter");
-        const userDocRef = doc(db, "users", username);
+      // Function to fetch and display real-time token balance
+function updateTokenBalance(username) {
+    const pxlCounter = document.getElementById("pxl-counter");
+    const userDocRef = doc(db, "users", username);
+    let lastPxlValue = null;
 
-        onSnapshot(userDocRef, (docSnapshot) => {
-          if (docSnapshot.exists()) {
+    onSnapshot(userDocRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             const pxlValue = data.token_balance || 0;
-            pxlCounter.innerHTML = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="width: 33px;margin-left: 5px;">`;
 
-          } else {
+            // Only update if the value has changed
+            if (pxlValue !== lastPxlValue) {
+                lastPxlValue = pxlValue;
+
+                // Update pxlCounter text
+                pxlCounter.innerHTML = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="width: 33px;margin-left: 5px;">`;
+
+                // Temporary color change
+                const originalColor = "#ffffff"; // Default color
+                const highlightColors = ["#ff5733", "#33ff57", "#3357ff", "#f5b041", "#9b59b6"];
+                const highlightColor = highlightColors[Math.floor(Math.random() * highlightColors.length)];
+                
+                pxlCounter.style.color = highlightColor;
+
+                // Revert back to the original color after 0.2 seconds
+                setTimeout(() => {
+                    pxlCounter.style.color = originalColor;
+                }, 200); // 200 ms
+            }
+        } else {
             console.warn("No document found for username:", username);
             pxlCounter.textContent = "Balance not found";
-          }
-        });
-      }
+        }
+    });
+}
+
 
      
       // Make updateScoreInFirestore available globally
