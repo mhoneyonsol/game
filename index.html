@@ -8,7 +8,7 @@
     <!-- Firebase SDK (Modular version) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-      import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+      import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
       // Firebase configuration
       const firebaseConfig = {
@@ -37,20 +37,20 @@
           console.log(`Successfully added ${score} points for ${username}`);
 
           Toastify({
-            text: `${score} NES won! 🎉`,
-            duration: 1000,
-            position: "center",
-            backgroundColor: "white",
-            close: false,
-            stopOnFocus: false,
-            style: {
-              position: "absolute",
-              borderRadius: "23px",
-              color: "black",
-              scale: "0.7",
-              paddingBottom: "15px",
-            },
-          }).showToast();
+                text: `${score} NES won! 🎉`,
+                duration: 1000,
+    position: "center",
+    backgroundColor: "white",
+    close: false,
+    stopOnFocus: false,
+    style: {
+        position: "absolute",
+        borderRadius: "23px",
+        color: "black",
+        scale: "0.7",
+        paddingBottom: "15px",
+    },
+}).showToast();
         } catch (error) {
           console.error("Error updating Firestore:", error, "For username:", username);
           Toastify({
@@ -61,8 +61,8 @@
             style: {
               background: "red",
               borderRadius: "10px",
-              color: "white",
-            },
+              color: "white"
+            }
           }).showToast();
         }
       }
@@ -79,25 +79,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-
-    <!-- Token Counter -->
-    <div id="token-counter" style="
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      z-index: 1000;
-      display: none;">
-      Loading...
-    </div>
-
-    <!-- Unity Canvas -->
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
 
@@ -117,45 +98,16 @@
       }
 
       // Function to get Telegram username
-      window.getTelegramUsername = function () {
+      window.getTelegramUsername = function() {
         return username;
       };
 
-      // Fetch and display token balance in real-time
-      async function fetchAndDisplayTokenBalance(username) {
-        if (!username || username === "Guest") {
-          console.warn("Invalid username, unable to fetch token balance.");
-          return;
-        }
-
-        const tokenCounter = document.getElementById("token-counter");
-        tokenCounter.style.display = "block"; // Show the counter
-
-        try {
-          const userRef = doc(db, "users", username);
-
-          // Listen for real-time changes in Firestore
-          onSnapshot(userRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-              const data = docSnapshot.data();
-              const tokenBalance = data.token_balance || 0;
-
-              // Update the counter on the screen
-              tokenCounter.innerText = `Tokens: ${tokenBalance}`;
-            } else {
-              console.warn("No document found for username:", username);
-              tokenCounter.innerText = "Tokens: 0";
-            }
-          });
-        } catch (error) {
-          console.error("Error fetching token balance:", error);
-          tokenCounter.innerText = "Error loading tokens.";
-        }
-      }
-
-      // Fetch token balance for the current username
-      const currentUsername = window.getTelegramUsername();
-      fetchAndDisplayTokenBalance(currentUsername);
+      // Function to receive score from Unity
+      window.SendScoreToFirestore = function(score) {
+        const currentUsername = window.getTelegramUsername();
+        console.log("Received score from Unity:", score, "for user:", currentUsername);
+        window.updateScoreInFirestore(score, currentUsername);
+      };
 
       // Unity WebGL Initialization
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -180,7 +132,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "NESTOR LAB",
         productName: "NES Adventure",
-        productVersion: "1.0",
+        productVersion: "1.0"
       }).then((unityInstance) => {
         console.log("Unity WebGL instance loaded!");
         window.unityInstance = unityInstance;
