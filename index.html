@@ -95,17 +95,32 @@
       window.updateScoreInFirestore = updateScoreInFirestore;
 
         // Afficher le pxl-counter après 10 secondes au chargement de l'application
-  window.onload = function () {
+ window.onload = function () {
     const pxlCounter = document.getElementById("pxl-counter");
-    pxlCounter.style.visibility = "hidden"; // Masquer initialement
-    pxlCounter.style.opacity = "0"; // Assurer qu'il est invisible
+    const usernameDisplay = document.createElement("p");
+    usernameDisplay.id = "username-display";
+    usernameDisplay.classList.add("username-display"); // Assign a CSS class
+    usernameDisplay.textContent = `User: ${username}`;
 
-    // Attendre 10 secondes avant de l'afficher
+    // Insert the username display before pxl-counter
+    pxlCounter.parentNode.insertBefore(usernameDisplay, pxlCounter);
+
+    // Initially hide both elements
+    pxlCounter.style.visibility = "hidden";
+    pxlCounter.style.opacity = "0";
+    usernameDisplay.style.visibility = "hidden";
+    usernameDisplay.style.opacity = "0";
+
+    // Wait 10 seconds before showing both elements
     setTimeout(() => {
-      pxlCounter.style.visibility = "visible"; // Le rendre visible
-      pxlCounter.style.opacity = "1"; // Activer l'effet d'apparition
-    }, 10000); // 10000 ms = 10 secondes
-  };
+        pxlCounter.style.visibility = "visible"; // Make pxl-counter visible
+        pxlCounter.style.opacity = "1"; // Trigger fade-in effect
+        usernameDisplay.style.visibility = "visible"; // Make username-display visible
+        usernameDisplay.style.opacity = "1"; // Trigger fade-in effect
+    }, 10000); // 10 seconds
+};
+
+
 
   // Mettre à jour le solde des tokens en temps réel
   updateTokenBalance(username);
@@ -139,6 +154,25 @@
     z-index: 1000;
     font-family: monospace;
     display: flex;
+    backdrop-filter: blur(2px);
+    visibility: hidden; 
+    opacity: 0; 
+    transition: opacity 0.5s ease-in-out;
+}
+
+#username-display {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffffff;
+    font-size: 14px;
+    font-family: monospace;
+    font-weight: bold;
+    background: rgb(255 255 255 / 18%);
+    padding: 5px 10px;
+    border-radius: 10px;
+    z-index: 1000;
     backdrop-filter: blur(2px);
     visibility: hidden; 
     opacity: 0; 
