@@ -8,7 +8,7 @@
     <!-- Firebase SDK (Modular version) -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-      import { getFirestore, doc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+      import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
       // Firebase configuration
       const firebaseConfig = {
@@ -32,44 +32,40 @@
         try {
           const userRef = doc(db, "users", username);
           await updateDoc(userRef, {
-            token_balance: increment(score),
+            token_balance: increment(score)
           });
           console.log(`Successfully added ${score} points for ${username}`);
+
+          Toastify({
+                text: `${score} NES won! 🎉`,
+                duration: 1000,
+    position: "center",
+    backgroundColor: "white",
+    close: false,
+    stopOnFocus: false,
+    style: {
+        position: "absolute",
+        borderRadius: "23px",
+        color: "black",
+        scale: "0.7",
+        paddingBottom: "15px",
+    },
+}).showToast();
         } catch (error) {
           console.error("Error updating Firestore:", error, "For username:", username);
+          Toastify({
+            text: `Error saving score: ${error.message}`,
+            duration: 3000,
+            gravity: "top",
+            position: "center",
+            style: {
+              background: "red",
+              borderRadius: "10px",
+              color: "white"
+            }
+          }).showToast();
         }
       }
-
-      // Function to fetch and display real-time token balance
-      function updateTokenBalance(username) {
-        const pxlCounter = document.getElementById("pxl-counter");
-        const userDocRef = doc(db, "users", username);
-
-        onSnapshot(userDocRef, (docSnapshot) => {
-          if (docSnapshot.exists()) {
-            const data = docSnapshot.data();
-            const pxlValue = data.token_balance || 0;
-            pxlCounter.textContent = `Tokens: ${pxlValue}`;
-          } else {
-            console.warn("No document found for username:", username);
-            pxlCounter.textContent = "Tokens: 0";
-          }
-        });
-      }
-
-      // Telegram WebApp Integration
-      let username = "Guest";
-      try {
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        username = tg.initDataUnsafe?.user?.username || "Guest";
-        console.log(`Telegram username: ${username}`);
-      } catch (error) {
-        console.warn("Telegram WebApp is not available:", error);
-      }
-
-      // Fetch token balance for the current user
-      updateTokenBalance(username);
 
       // Make updateScoreInFirestore available globally
       window.updateScoreInFirestore = updateScoreInFirestore;
@@ -83,33 +79,34 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-
-    <!-- Token Counter -->
-    <p id="pxl-counter" style="
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      z-index: 1000;">
-      Loading...
-    </p>
-
-    <!-- Unity Canvas -->
     <canvas id="unity-canvas" width=350 height=622 tabindex="-1" style="width: 350px; height: 622px; background: #000000"></canvas>
     <script src="Build/game.loader.js"></script>
 
     <!-- Global JavaScript functions -->
     <script>
-      // Function to receive score from Unity and update Firestore
-      window.SendScoreToFirestore = function (score) {
-        console.log("Received score from Unity:", score, "for user:", username);
-        window.updateScoreInFirestore(score, username);
+      // Initialize username globally
+      let username = "Guest";
+
+      // Telegram WebApp Integration
+      try {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        username = tg.initDataUnsafe?.user?.username || "Guest";
+        console.log(`Telegram username: ${username}`);
+      } catch (error) {
+        console.warn("Telegram WebApp is not available:", error);
+      }
+
+      // Function to get Telegram username
+      window.getTelegramUsername = function() {
+        return username;
+      };
+
+      // Function to receive score from Unity
+      window.SendScoreToFirestore = function(score) {
+        const currentUsername = window.getTelegramUsername();
+        console.log("Received score from Unity:", score, "for user:", currentUsername);
+        window.updateScoreInFirestore(score, currentUsername);
       };
 
       // Unity WebGL Initialization
@@ -135,7 +132,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "NESTOR LAB",
         productName: "NES Adventure",
-        productVersion: "1.0",
+        productVersion: "1.0"
       }).then((unityInstance) => {
         console.log("Unity WebGL instance loaded!");
         window.unityInstance = unityInstance;
