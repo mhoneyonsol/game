@@ -78,10 +78,11 @@
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             const pxlValue = data.token_balance || 0;
-            pxlCounter.textContent = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="scale: 1; width: 33px;">`;
+            pxlCounter.innerHTML = `${pxlValue} <img src="https://i.imgur.com/xTYK9J3.png" style="width: 33px;">`;
+
           } else {
             console.warn("No document found for username:", username);
-            pxlCounter.textContent = "Tokens: 0";
+            pxlCounter.textContent = "Balance not found";
           }
         });
       }
